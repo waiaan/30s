@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title></title>
+<link rel="stylesheet" href="">
+<style>
+  body{
+    text-align: center;
+  }
+  #c1{
+    background: #000;
+    cursor:pointer; 
+  }
+  #begin{
+    position: absolute;
+    top:30%;
+    left:50%;
+  }
+</style>
+</head>
+<body>
+<div id="container">
+  
+  <canvas id="c1"></canvas>
+  
+  <div>
+    <h2>计时</h2>
+    <p>
+      <span id="counter">0</span>
+    秒</p>
+  </div>
+   
+  <div id="begin">
+     <button>开始</button>
+  </div> 
+</div>  
+<script>
+  //设置主页面的宽、高、位置
+  var cw=500,ch=500;
+  c1.height=ch;
+  c1.width=cw;
+  
+  //设置全局变量
+  var ctx=c1.getContext("2d");
+  var mx,my;//鼠标移动位置
+  var bullet=[],bn=50,r=2;//子弹数据
+  var pw=14,ph=14;//飞机尺寸
+  var gameOver=false;
+  
+  c1.onmousemove=function(e){
+    mx=e.offsetX;
+    my=e.offsetY;
+    if(mx<=0||mx>=cw||my<=0||my>=ch){
+      gameOver=true;
+    }
+  }
+
+  //设置子弹起始位置
+  function bulletCreater(){
+    for(var i=0;i<bn;){
+      var bpx=Math.round(Math.random()*cw);
+      var bpy=Math.round(Math.random()*ch);
+      if(
+          !((bpx>=cw/5&&bpx<=cw*4/5)&&(bpy>=ch/5&&bpy<=ch*4/5))
+        ){
+        bullet[i]={};
+        bullet[i].x=bpx;
+        bullet[i].y=bpy;
+        if(bpx<=cw/2){bullet[i].dx=1;}
+        if(bpx>=cw/2){bullet[i].dx=-1;}
+        if(bpy<=ch/2){bullet[i].dy=1;}
+        if(bpy>=ch/2){bullet[i].dy=-1;}
+        i++;
+      }  
+    }
+  }
+  
+  //设置子弹运动
+  function bulletMove(){
+    for(var i=0;i<bullet.length;i++){
+      ctx.beginPath();
+      ctx.arc(bullet[i].x,bullet[i].y,r,0,360*Math.PI/180);
+      ctx.fillStyle="yellow";
+      ctx.fill();
+      ctx.closePath();
+      bullet[i].x+=bullet[i].dx*(Math.random()<0.5?2:3);
+      bullet[i].y+=bullet[i].dy*(Math.random()<0.5?2:3);
+      var ex=mx,ey=my;
+      if(
+          ((bullet[i].x>=(ex))&&(bullet[i].x<=(ex+pw)))
+          &&
+          ((bullet[i].y>=(ey))&&(bullet[i].y<=(ey+ph)))
+        ){
+        gameOver=true;
+        begin.style.display="block";
+      }
+      if(bullet[i].x<=0||bullet[i].x>=cw){bullet[i].dx=-bullet[i].dx;}
+      if(bullet[i].y<=0||bullet[i].y>=ch){bullet[i].dy=-bullet[i].dy;}
+    }
+  }
+  
+  function gameStart(){
+    gameOver=false;
+    begin.style.display="none";
+    bulletCreater();
+    var cn=0;
+    var t=setInterval(function(){
+      ctx.clearRect(0,0,cw,ch);
+      bulletMove();
+      counter.innerHTML=Math.floor(cn);
+      cn+=20/1000;
+      if(gameOver===true){
+        clearInterval(t);
+        t=null;
+      }
+    },20);
+  }
+
+  begin.onclick=function(){
+    gameStart();
+  }
+</script>
+</body>
+</html>
